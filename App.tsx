@@ -79,7 +79,7 @@ function Navbar({addProduct, setAddProduct} : NavbarProps): React.JSX.Element {
 interface Product{
   productImg: string;
   productName: string;
-  price: number;
+  priceNumber?: number;
 
 }
 interface FormProps{
@@ -103,7 +103,6 @@ function Form ({productName, price, setName, setPrice, products, setProducts, pr
       return;
     }else{
       setProducts([...products, {productImg, productName, priceNumber}]);
-      console.log(products);
       setImg('');
       setName('');
       setPrice('');
@@ -119,7 +118,12 @@ function Form ({productName, price, setName, setPrice, products, setProducts, pr
       <TextInput value={productImg} onChangeText={(text) => setImg(text)} placeholder='Image Product URL'/>
       <TextInput value={productName} onChangeText={(text) => setName(text)} placeholder='Name Product'/>
       <TextInput value={price} onChangeText={(text) => setPrice(text)} placeholder='Price'/>
-      <Button title="Submit" onPress={handleFormSubmit} />
+      <Button title="Submit" onPress={() => {
+        handleFormSubmit()
+        console.log(products)}} />
+      <Button onPress={() =>{
+        setAddProduct(false);
+      }} title="Close"/>
     </View>
   );
 };
@@ -130,13 +134,19 @@ function ProductList({products} : {products: Product[]}) : React.JSX.Element {
   return (
     <View>
       <Section title='Product List'/>
+     
       {products.map((product, index) => {
-        return (
+        return ( <View style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+        }}>
           <View key={index}>
-            <Image source={{uri: product.productImg}} style={{width: 50, height: 50}} />
+            <Image source={{uri: product.productImg}} style={{width: 150, height: 150}} />
             <Text>{product.productName}</Text>
-            <Text>{product.price}</Text>
-          </View>
+            <Text>{product.priceNumber}</Text>
+          </View></View>
         );
       })}
     </View>
