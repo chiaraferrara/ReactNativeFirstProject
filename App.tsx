@@ -1,29 +1,25 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
 
-import React from 'react';
+// import { FormControl, Input, Stack, Text, Divider, Box, WarningOutlineIcon, ScrollView, Center, NativeBaseProvider } from "native-base";
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Button,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
+  TextInput,
   Text,
   useColorScheme,
   View,
+  ScrollView,
+  Image,
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+
+
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -55,8 +51,106 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   );
 }
 
+// Navbar component
+
+
+interface NavbarProps {
+  addProduct: boolean;
+  setAddProduct: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function Navbar({addProduct, setAddProduct} : NavbarProps): React.JSX.Element {
+
+
+  const toggleAppProduct = () =>{
+    setAddProduct(!addProduct);
+    console.log(addProduct)
+  }
+
+  return (
+    <>
+      <View style={{backgroundColor: 'black'}}>
+       <Button title='Add a Product' onPress={() => toggleAppProduct()}/>
+      </View>
+    </>
+  );
+}
+
+interface Product{
+  productImg: string;
+  productName: string;
+  price: number;
+
+}
+interface FormProps{
+  productName: string;
+  price: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  setPrice: React.Dispatch<React.SetStateAction<string>>;
+  products: Product[];
+  setProducts: React.Dispatch<React.SetStateAction<any[]>>;
+  productImg: string;
+  setImg: React.Dispatch<React.SetStateAction<string>>;
+  setAddProduct: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function Form ({productName, price, setName, setPrice, products, setProducts, productImg, setImg, setAddProduct}: FormProps) : React.JSX.Element {
+
+  const priceNumber = parseFloat(price);
+
+  const handleFormSubmit = () => {
+    if(productImg === "" || productName === '' || price === ''){
+      return;
+    }else{
+      setProducts([...products, {productImg, productName, priceNumber}]);
+      console.log(products);
+      setImg('');
+      setName('');
+      setPrice('');
+      setAddProduct(false);
+    }    
+    
+  }
+
+  return (
+    <View>
+
+      <Section title='Add a product'/>
+      <TextInput value={productImg} onChangeText={(text) => setImg(text)} placeholder='Image Product URL'/>
+      <TextInput value={productName} onChangeText={(text) => setName(text)} placeholder='Name Product'/>
+      <TextInput value={price} onChangeText={(text) => setPrice(text)} placeholder='Price'/>
+      <Button title="Submit" onPress={handleFormSubmit} />
+    </View>
+  );
+};
+
+
+function ProductList({products} : {products: Product[]}) : React.JSX.Element {
+
+  return (
+    <View>
+      <Section title='Product List'/>
+      {products.map((product, index) => {
+        return (
+          <View key={index}>
+            <Image source={{uri: product.productImg}} style={{width: 50, height: 50}} />
+            <Text>{product.productName}</Text>
+            <Text>{product.price}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 function App(): React.JSX.Element {
+  const [productName, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productImg, setImg] = useState('');
+
   const isDarkMode = useColorScheme() === 'dark';
+  const [addProduct, setAddProduct] = useState<boolean>(false);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -71,24 +165,27 @@ function App(): React.JSX.Element {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        <Header />
+        <Navbar addProduct={addProduct} setAddProduct={setAddProduct} />
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section >
-           Aiai
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+         
+          {addProduct ? 
+          <Form  productName={productName} 
+          price={price} 
+          setName={setName} 
+          setPrice={setPrice}
+          products={products} 
+          setProducts={setProducts}
+          productImg={productImg}
+          setImg={setImg}
+          setAddProduct={setAddProduct}
+          /> 
+          :
+          <ProductList products={products} />
+           }
+          
         </View>
       </ScrollView>
     </SafeAreaView>
